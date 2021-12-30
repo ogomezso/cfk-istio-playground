@@ -1,19 +1,20 @@
 apiVersion: platform.confluent.io/v1beta1
-kind: Kafka
+kind: SchemaRegistry
 metadata:
-  name: broker
+  name: schemaregistry
   namespace: confluent
 spec:
-  replicas: 3
+  replicas: 1
   image:
-    application: confluentinc/cp-server:7.0.1
+    application: confluentinc/cp-schema-registry:7.0.1
     init: confluentinc/confluent-init-container:2.2.0-1
-  dataVolumeCapacity: 1Ti
   podTemplate:
+    labels:
+      version: "7.0.1"
     resources:
       requests:
         cpu: "1"
-        memory: "4Gi"
+        memory: "2Gi"
       limits:
         cpu: "2"
-        memory: "8Gi"
+        memory: "4Gi"

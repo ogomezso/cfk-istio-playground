@@ -1,22 +1,25 @@
 apiVersion: platform.confluent.io/v1beta1
-kind: KsqlDB
+kind: Connect
 metadata:
-  name: ksqldb
+  name: connect
   namespace: confluent
 spec:
   replicas: 1
   image:
-    application: confluentinc/cp-ksqldb-server:7.0.1
+    application: confluentinc/cp-server-connect:7.0.1
     init: confluentinc/confluent-init-container:2.2.0-1
-  dataVolumeCapacity: 10Gi
   podTemplate:
+    labels:
+      version: "7.0.1"
+    annotations:
+      sidecar.istio.io/inject: "true"
     resources:
       requests:
+        cpu: "1"
+        memory: "4Gi"
+      limits:
         cpu: "2"
         memory: "8Gi"
-      limits:
-        cpu: "4"
-        memory: "16Gi"
   dependencies:
     schemaRegistry:
       url: http://schemaregistry.confluent.svc.cluster.local:8081

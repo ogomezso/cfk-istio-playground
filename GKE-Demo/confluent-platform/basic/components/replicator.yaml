@@ -10,6 +10,11 @@ spec:
     application: confluentinc/cp-enterprise-replicator:7.0.1
     init: confluentinc/confluent-init-container:2.2.0-1
   podTemplate:
+    labels:
+      version: "7.0.1"
+    envVars:
+    - name: CLASSPATH
+      value: /usr/share/java/kafka-connect-replicator/replicator-rest-extension-7.0.1.jar
     resources:
       requests:
         cpu: "2"
@@ -17,6 +22,9 @@ spec:
       limits:
         cpu: "4"
         memory: "16Gi"
+  configOverrides:
+    server:
+    - rest.extension.classes=io.confluent.connect.replicator.monitoring.ReplicatorMonitoringExtension
   dependencies:
     schemaRegistry:
       url: http://schemaregistry.confluent.svc.cluster.local:8081
