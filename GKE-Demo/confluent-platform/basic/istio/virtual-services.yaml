@@ -1,0 +1,243 @@
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: schemaregistry-vs
+  namespace: confluent
+spec:
+  hosts:
+  - "istio.schemaregistry"
+  - "schemaregistry.confluent.svc.cluster.local"
+  gateways:
+  - confluent-http-gw
+  - mesh
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+      gateways:
+        - confluent-http-gw
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: gateway-error,connect-failure,refused-stream
+    timeout: 10s
+    route:
+    - destination:
+        host: schemaregistry.confluent.svc.cluster.local
+        port:
+          number: 8081
+  - match:
+    - gateways:
+      - mesh
+    route:
+    - destination:
+        host: schemaregistry.confluent.svc.cluster.local
+        port:
+          number: 8081
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: ksqldb-vs
+  namespace: confluent
+spec:
+  hosts:
+  - "istio.ksqldb"
+  - "ksqldb.operator.svc.cluster.local"
+  gateways:
+  - confluent-http-gw
+  - mesh
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+      gateways:
+        - confluent-http-gw
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: gateway-error,connect-failure,refused-stream
+    timeout: 10s
+    route:
+    - destination:
+        host: ksqldb.confluent.svc.cluster.local
+        port:
+          number: 8088
+  - match:
+    - gateways:
+      - mesh
+    route:
+    - destination:
+        host: ksqldb.confluent.svc.cluster.local
+        port:
+          number: 8088
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: connect-vs
+  namespace: confluent
+spec:
+  hosts:
+  - "istio.connect"
+  - "connect.confluent.svc.cluster.local"
+  gateways:
+  - confluent-http-gw
+  - mesh
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+      gateways:
+        - confluent-http-gw
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: gateway-error,connect-failure,refused-stream
+    timeout: 10s
+    route:
+    - destination:
+        host: connect.confluent.svc.cluster.local
+        port:
+          number: 8083
+  - match:
+    - gateways:
+      - mesh
+    route:
+    - destination:
+        host: connect.confluent.svc.cluster.local
+        port:
+          number: 8083
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: replicator-vs
+  namespace: confluent
+spec:
+  hosts:
+    - "istio.replicator"
+    - "replicator.confluent.svc.cluster.local"
+  gateways:
+    - confluent-http-gw
+    - mesh
+  http:
+    - match:
+        - uri:
+            prefix: "/"
+          gateways:
+            - confluent-http-gw
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: gateway-error,connect-failure,refused-stream
+      timeout: 10s
+      route:
+        - destination:
+            host: replicator.confluent.svc.cluster.local
+            port:
+              number: 8083
+    - match:
+        - gateways:
+            - mesh
+      route:
+        - destination:
+            host: replicator.confluent.svc.cluster.local
+            port:
+              number: 8083
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: controlcenter-vs
+  namespace: confluent
+spec:
+  hosts:
+  - "istio.c3"
+  - "controlcenter.operator.svc.cluster.local"
+  gateways:
+  - confluent-http-gw
+  - mesh
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+      gateways:
+        - confluent-http-gw
+    retries:
+      attempts: 3
+      perTryTimeout: 2s
+      retryOn: gateway-error,connect-failure,refused-stream
+    timeout: 10s
+    route:
+    - destination:
+        host: controlcenter.confluent.svc.cluster.local
+        port:
+          number: 9021
+  - match:
+    - gateways:
+      - mesh
+    route:
+    - destination:
+        host: controlcenter.confluent.svc.cluster.local
+        port:
+          number: 9021
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: kafka-rest-vs
+  namespace: confluent
+spec:
+  hosts:
+  - "istio.kafka-rest"
+  gateways:
+  - confluent-http-gw
+  http:
+  - match:
+    - uri:
+        prefix: "/"
+    rewrite:
+      uri: /kafka/v3/
+    route:
+    - destination:
+        host: broker.confluent.svc.cluster.local
+        port:
+          number: 8090
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: kafkarestproxy-vs
+  namespace: confluent
+spec:
+  hosts:
+    - "istio.restproxy"
+    - "kafkarestproxy.confluent.svc.cluster.local"
+  gateways:
+    - confluent-http-gw
+    - mesh
+  http:
+    - match:
+        - uri:
+            prefix: "/"
+          gateways:
+            - confluent-http-gw
+      retries:
+        attempts: 3
+        perTryTimeout: 2s
+        retryOn: gateway-error,connect-failure,refused-stream
+      timeout: 10s
+      route:
+        - destination:
+            host: kafkarestproxy.confluent.svc.cluster.local
+            port:
+              number: 8082
+    - match:
+        - gateways:
+            - mesh
+      route:
+        - destination:
+            host: kafkarestproxy.operator.svc.cluster.local
+            port:
+              number: 8082

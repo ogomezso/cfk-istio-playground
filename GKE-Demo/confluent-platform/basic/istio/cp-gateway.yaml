@@ -1,0 +1,21 @@
+apiVersion: networking.istio.io/v1beta1
+kind: Gateway
+metadata:
+  name: confluent-http-gw
+  namespace: confluent
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+  - port:
+      number: 80
+      name: http-gw
+      protocol: HTTP
+    hosts:
+      - "istio.schemaregistry"
+      - "istio.ksqldb"
+      - "istio.c3"
+      - "istio.connect"
+      - "istio.replicator"
+      - "istio.kafka-rest"
+      - "istio.restproxy"
