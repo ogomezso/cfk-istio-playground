@@ -76,6 +76,66 @@ $INGRESS_HOST istio.jaeger
 More detailed information on The Istio getting started sample application [documentation](https://istio.io/latest/docs/setup/getting-started/#bookinfo)
 ### CFK Install
 
+Before start the installation my recommendation is to label the `confluent namespace` with auto sidecar injection:
+
+~~~shell
+kubectl label namespace confluent istio-injection=enabled
+~~~
+
 You just need to follow the instructions you can found on:
 
  [Confluent For Kubernetes Examples for External static host access Deployments with Istio](https://github.com/confluentinc/confluent-kubernetes-examples/tree/master/networking/external-access-static-host-based)
+
+> Note: For simplicity you can find the CR under the confluent-platform folder
+> My recommendation is instead of install from a unique CR, install component by component. The recommended order can be: zookeeper, kafka, schemaregistry, connect, ksql, controlcenter
+
+### Istio Resources
+
+You can avoid the istio installation part form the example repo (we already installed istio with the default config)
+
+As istio resources we will have:
+
+#### istio-kafka-virtual-service
+
+Istio abstraction in charge to do the wire between the istio gateway and the service.
+
+In this case it will be used for external connections through mtls protocol 
+#### istio-cp-Gateway
+
+Istio gateway resource that will be able to route from `istio-ingressgateway` to `istio-kafka-virtual-services` 
+
+### Clients
+
+Create a clients namespace and apply the label for autoinjecting envoy sidecars:
+
+~~~shell
+kubectl create namespace clients
+~~~~
+
+~~~shell
+kubectl label namespace clients istio-injection=enabled
+~~~
+
+#### External console producer
+
+Generate the proper certificates and following the instructions  [Confluent For Kubernetes Examples for External static host access Deployments with Istio](https://github.com/confluentinc/confluent-kubernetes-examples/tree/master/networking/external-access-static-host-based)
+
+and run this command:
+
+~~~shell
+kafka-console-producer --bootstrap-server kafka.$DOMAIN:443 \
+  --topic elastic-0 \
+  --producer.config $TUTORIAL_HOME/client/kafka.properties
+~~~
+
+With this you will generate a console producer from your machine to the broker with mtls authentication through the `istio-ingress-gateway`
+
+Take a look on the `kiali` console how it looks like.
+
+#### Internal perf producer
+
+Just apply the CRs under clients/perf-test and that will create a pod (with the proper sidecar) that creates a topic and runs a `kafka-producer-perf-test`.
+
+As you can see on the CR that will be configured with boostrap pointing to the insecure internal bootstrap endpoint.
+
+But as you can see on the `kiali` console the communication between this pods will be secured with mtls automatically. This happens because this actually happens between the both envoy sidecars. 
