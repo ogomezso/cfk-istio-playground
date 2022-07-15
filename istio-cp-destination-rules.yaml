@@ -1,3 +1,4 @@
+---
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
 metadata:
@@ -17,26 +18,6 @@ spec:
         http1MaxPendingRequests: 1024
         http2MaxRequests: 10240
         maxRequestsPerConnection: 1024               
----
-apiVersion: networking.istio.io/v1beta1
-kind: DestinationRule
-metadata:
-  name: replicator-destination-rule
-  namespace: confluent
-spec:
-  host: replicator.confluent.svc.cluster.local
-  trafficPolicy:
-    loadBalancer:
-      simple: RANDOM
-    tls:
-      mode: ISTIO_MUTUAL
-    connectionPool:
-      http:
-        h2UpgradePolicy: DO_NOT_UPGRADE
-        maxRetries: 10
-        http1MaxPendingRequests: 1024
-        http2MaxRequests: 10240
-        maxRequestsPerConnection: 1024
 ---
 apiVersion: networking.istio.io/v1beta1
 kind: DestinationRule
@@ -123,7 +104,7 @@ metadata:
   name: kafka-destination-rule
   namespace: confluent
 spec:
-  host: broker.confluent.svc.cluster.local
+  host: kafka.confluent.svc.cluster.local
   trafficPolicy:
     loadBalancer:
       simple: RANDOM
@@ -135,24 +116,3 @@ spec:
         tcpKeepalive:
           interval: 1m
           time: 3m
----
-apiVersion: networking.istio.io/v1beta1
-kind: DestinationRule
-metadata:
-  name: kafkarestproxy-destination-rule
-  namespace: confluent
-spec:
-  host: kafkarestproxy.confluent.svc.cluster.local
-  trafficPolicy:
-    loadBalancer:
-      consistentHash:
-        useSourceIp: true
-    tls:
-      mode: ISTIO_MUTUAL
-    connectionPool:
-      http:
-        h2UpgradePolicy: DO_NOT_UPGRADE
-        maxRetries: 10
-        http1MaxPendingRequests: 1024
-        http2MaxRequests: 10240
-        maxRequestsPerConnection: 1024

@@ -1,0 +1,11 @@
+certs/cacerts.pem
+certs/cacerts.srl
+certs/client.csr
+certs/fullchain-client.pem
+certs/fullchain.pem
+certs/privkey-client.pem
+certs/privkey.pem
+certs/rootCAkey.pem
+certs/server.csr
+client/client.keystore.p12
+client/client.truststore.p12
